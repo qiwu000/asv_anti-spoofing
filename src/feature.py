@@ -9,7 +9,10 @@ from tqdm import tqdm
 
 
 def _preEmphasis(wave: np.ndarray, p=0.97) -> np.ndarray:
-    """Pre-Emphasis"""
+    """
+        Pre-Emphasis
+        预加重      
+    """
     return scipy.signal.lfilter([1.0, -p], 1, wave)
 
 
@@ -24,7 +27,7 @@ def _calc_stft(path: str) -> np.ndarray:
     """
     wave, sr = librosa.load(path)
     wave = _preEmphasis(wave)
-    steps = int(len(wave) * 0.0081)
+    steps = int(len(wave) * 0.0081)         #步长
     # calculate STFT
     stft = librosa.stft(wave, n_fft=sr, win_length=1700, hop_length=steps, window="blackman")
     amp_db = librosa.amplitude_to_db(np.abs(stft), ref=np.max)
@@ -48,8 +51,11 @@ def calc_stft(protocol_df: pd.DataFrame, path: str) -> Tuple[np.ndarray, np.ndar
      label: 0 = Genuine（真）, 1 = Spoof（假）
     """
 
+    #   定义一个列表
     data = []
-    for audio in tqdm(protocol_df["utt_id"]):
+    #   遍历每一个音频文件
+    
+    for audio in tqdm(protocol_df["utt_id"]):   #对csv中“utt_id”列的每一个元素
         file = path + audio + ".flac"
         # Calculate STFT
         stft_spec = _calc_stft(file)

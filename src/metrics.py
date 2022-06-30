@@ -9,7 +9,7 @@ def calculate_eer(labels, scores):
 
     Args:
         labels(int): the label (0 or 1)
-        scores(float): Probability.
+        scores(float): Probability（概率）.
 
     Returns:
         EER(float)

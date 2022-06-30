@@ -42,19 +42,21 @@ lr = 0.00001
 # Set cqt of stft.
 # 我们可以使用通过 FFT 或 CQT 提取 2 种频谱图。
 # 设置 stft 的 cqt。
+#   特征类型
 feature_type = "cqt"
 
 # The path for saving model
 # This is used for ModelChecking callback.
 # 模型保存路径
-# 这用于 ModelChecking 回调。
+# 用于 ModelChecking 回调。
+#    保存的路径
 saving_path = "lcnn.h5"
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 
 # Replace the path to protcol of ASV2019 depending on your environment.
-# 根据您的环境替换 ASV2019 协议的路径。
-#csv为标签
+# 根据环境替换 ASV2019 协议的路径。
+#       csv为标签
 protocol_tr = "./protocol/train_protocol.csv"
 protocol_dev = "./protocol/dev_protocol.csv"
 protocol_eval = "./protocol/eval_protocol.csv"
@@ -63,7 +65,10 @@ protocol_eval = "./protocol/eval_protocol.csv"
 # Replace 'asvspoof_database/ to your database path.
 # 选择访问类型 PA 或 LA。
 # 将 'asvspoof_database/ 替换为您的数据库路径。
-access_type = "PA"
+#      。。。asvspoof_database/"PA"/ASVspoof2019_PA_train/flac/。。。
+#
+
+access_type = "PA"#通道选择
 path_to_database = "asvspoof_database/" + access_type
 path_tr = path_to_database + "/ASVspoof2019_" + access_type + "_train/flac/"
 path_dev = path_to_database + "/ASVspoof2019_" + access_type + "_dev/flac/"
@@ -72,21 +77,26 @@ path_eval = path_to_database + "/ASVspoof2019_" + access_type + "_eval/flac/"
 if __name__ == "__main__":
 
     #读入标签
-    #tr 训练集   dev 开发集（用于调参、选择特征）
+    #    tr 训练集  
     df_tr = pd.read_csv(protocol_tr)
+    #    dev 开发集（用于调参、选择特征）
     df_dev = pd.read_csv(protocol_dev)
 
+
+    #提取stft特征
     if feature_type == "stft":
-        print("Extracting train data（提取训练数据）...")
+        print("正在提取训练数据...")
         x_train, y_train = calc_stft(df_tr, path_tr)
-        print("Extracting dev data（提取开发数据）...")
+        print("正在提取开发数据...")
         x_val, y_val = calc_stft(df_dev, path_dev)
 
+    #提取cqt特征
     elif feature_type == "cqt":
-        print("Extracting train data（提取训练数据）...")
+        print("正在提取训练数据...")
         x_train, y_train = calc_cqt(df_tr, path_tr)
-        print("Extracting dev data（提取开发数据）...")
+        print("正在提取开发数据...")
         x_val, y_val = calc_cqt(df_dev, path_dev)
+
 
     input_shape = x_train.shape[1:]
     lcnn = build_lcnn(input_shape)
@@ -98,7 +108,7 @@ if __name__ == "__main__":
     )
 
     # Callbacks
-    # 回调函数
+    #回调函数
     es = EarlyStopping(monitor="val_loss", patience=10, verbose=1)
     cp_cb = ModelCheckpoint(
         filepath="./model",
@@ -131,6 +141,6 @@ if __name__ == "__main__":
     # predict
     preds = lcnn.predict(x_eval)
 
-    score = preds[:, 0] - preds[:, 1]  # Get likelihood
-    eer = calculate_eer(y_eval, score)  # Get EER score
+    score = preds[:, 0] - preds[:, 1]  # Get likelihood   获取似然比
+    eer = calculate_eer(y_eval, score)  # Get EER score     获取EER
     print(f"EER : {eer*100} %")
