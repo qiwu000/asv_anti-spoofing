@@ -36,6 +36,7 @@ def calc_stft(protocol_df: pd.DataFrame, path: str) -> Tuple[np.ndarray, np.ndar
     """
 
     This function extracts spectrograms from raw audio data by using FFT.
+    此函数使用 FFT 从原始音频数据中提取频谱图。 
 
     Args:
      protocol_df(pd.DataFrame): ASVspoof2019 protocol.
@@ -43,7 +44,8 @@ def calc_stft(protocol_df: pd.DataFrame, path: str) -> Tuple[np.ndarray, np.ndar
 
     Returns:
      data: spectrograms that have 4 dimentions like (n_samples, height, width, 1)
-     label: 0 = Genuine, 1 = Spoof
+     具有 4 个维度的频谱图，例如 (n_samples, height, width, 1)
+     label: 0 = Genuine（真）, 1 = Spoof（假）
     """
 
     data = []
@@ -54,6 +56,7 @@ def calc_stft(protocol_df: pd.DataFrame, path: str) -> Tuple[np.ndarray, np.ndar
         data.append(stft_spec)
 
     # Extract labels from protocol
+    # 从excel提取标签
     labels = _extract_label(protocol_df)
 
     return np.array(data), labels

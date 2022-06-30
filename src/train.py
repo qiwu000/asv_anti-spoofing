@@ -1,15 +1,25 @@
 """
 
 Train the LCNN and predict.
-
+训练LCNN以及预测
 
 Note: This is optimized for ASVspoof2019's competition.
       If you wnat to use for your own data  change the database path.
+
 
 Todo:
     * Select 'feature_type'(fft or cqt).
     * Set the path to 'saving_path' for saving your model.
     * Set the Database path depends on your enviroment.
+
+注意：这是针对 ASVspoof2019 的比赛进行了优化。
+       如果您想为自己的数据使用更改数据库路径。
+
+
+要做的：
+     * 选择“feature_type”（fft 或 cqt）。
+     * 将路径设置为“saving_path”以保存模型。
+     * 设置数据库路径取决于您的环境。
 
 """
 
@@ -30,21 +40,29 @@ lr = 0.00001
 
 # We can use 2 types of spectrogram that extracted by using FFT or CQT.
 # Set cqt of stft.
+# 我们可以使用通过 FFT 或 CQT 提取 2 种频谱图。
+# 设置 stft 的 cqt。
 feature_type = "cqt"
 
 # The path for saving model
 # This is used for ModelChecking callback.
+# 模型保存路径
+# 这用于 ModelChecking 回调。
 saving_path = "lcnn.h5"
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 
 # Replace the path to protcol of ASV2019 depending on your environment.
+# 根据您的环境替换 ASV2019 协议的路径。
+#csv为标签
 protocol_tr = "./protocol/train_protocol.csv"
 protocol_dev = "./protocol/dev_protocol.csv"
 protocol_eval = "./protocol/eval_protocol.csv"
 
 # Choose access type PA or LA.
 # Replace 'asvspoof_database/ to your database path.
+# 选择访问类型 PA 或 LA。
+# 将 'asvspoof_database/ 替换为您的数据库路径。
 access_type = "PA"
 path_to_database = "asvspoof_database/" + access_type
 path_tr = path_to_database + "/ASVspoof2019_" + access_type + "_train/flac/"
@@ -53,19 +71,21 @@ path_eval = path_to_database + "/ASVspoof2019_" + access_type + "_eval/flac/"
 
 if __name__ == "__main__":
 
+    #读入标签
+    #tr 训练集   dev 开发集（用于调参、选择特征）
     df_tr = pd.read_csv(protocol_tr)
     df_dev = pd.read_csv(protocol_dev)
 
     if feature_type == "stft":
-        print("Extracting train data...")
+        print("Extracting train data（提取训练数据）...")
         x_train, y_train = calc_stft(df_tr, path_tr)
-        print("Extracting dev data...")
+        print("Extracting dev data（提取开发数据）...")
         x_val, y_val = calc_stft(df_dev, path_dev)
 
     elif feature_type == "cqt":
-        print("Extracting train data...")
+        print("Extracting train data（提取训练数据）...")
         x_train, y_train = calc_cqt(df_tr, path_tr)
-        print("Extracting dev data...")
+        print("Extracting dev data（提取开发数据）...")
         x_val, y_val = calc_cqt(df_dev, path_dev)
 
     input_shape = x_train.shape[1:]
@@ -78,6 +98,7 @@ if __name__ == "__main__":
     )
 
     # Callbacks
+    # 回调函数
     es = EarlyStopping(monitor="val_loss", patience=10, verbose=1)
     cp_cb = ModelCheckpoint(
         filepath="./model",
@@ -98,7 +119,7 @@ if __name__ == "__main__":
     )
     del x_train, x_val
 
-    print("Extracting eval data")
+    print("Extracting eval data（提取评估数据）")
     df_eval = pd.read_csv(protocol_eval)
 
     if feature_type == "stft":
